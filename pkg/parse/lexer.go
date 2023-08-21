@@ -247,6 +247,7 @@ func lexAfterPrice(l *lexer) stateFn {
 func lexPriceDB(l *lexer) stateFn {
 	next := l.peek()
 	if next == eof {
+		l.emit(itemEOF)
 		return nil
 	}
 	return lexPrice

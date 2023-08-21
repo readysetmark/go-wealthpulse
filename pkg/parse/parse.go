@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"errors"
 	"strconv"
 	"time"
 )
@@ -17,13 +16,22 @@ type Price struct {
 	Price Amount
 }
 
-func ParsePrice(buffer string) (Price, error) {
-	lexer := lex("price", buffer, lexPriceSentinel)
-	next := lexer.nextItem()
-	if next.typ != itemPriceSentinel {
-		return Price{}, errors.New("Was expecting a price")
+func ParsePriceDB(buffer string) ([]Price, error) {
+	prices := make([]Price, 0)
+	lexer := lex("price db", buffer, lexPriceDB)
+	for {
+		next := lexer.nextItem()
+		if next.typ == itemPriceSentinel {
+			price, err := parsePrice(lexer)
+			if err != nil {
+				return nil, err
+			}
+			prices = append(prices, price)
+		} else {
+			break
+		}
 	}
-	return parsePrice(lexer)
+	return prices, nil
 }
 
 func parsePrice(lexer *lexer) (Price, error) {
@@ -54,22 +62,4 @@ func parsePrice(lexer *lexer) (Price, error) {
 			Quantity: amountQuantityItem.value,
 		},
 	}, nil
-}
-
-func ParsePriceDB(buffer string) ([]Price, error) {
-	prices := make([]Price, 0)
-	lexer := lex("price db", buffer, lexPriceDB)
-	for {
-		next := lexer.nextItem()
-		if next.typ == itemPriceSentinel {
-			price, err := parsePrice(lexer)
-			if err != nil {
-				return nil, err
-			}
-			prices = append(prices, price)
-		} else {
-			break
-		}
-	}
-	return prices, nil
 }

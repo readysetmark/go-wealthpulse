@@ -8,6 +8,22 @@ import (
 	"github.com/readysetmark/go-wealthpulse/pkg/parse"
 )
 
+func TestPriceString(t *testing.T) {
+	test := parse.Price{
+		Date: time.Date(2023, time.August, 9, 0, 0, 0, 0, time.UTC),
+		Unit: "WP",
+		Price: parse.Amount{
+			Unit:     "$",
+			Quantity: "25.37",
+		},
+	}
+	want := "P 2023-08-09 \"WP\" $25.37"
+	got := test.String()
+	if got != want {
+		t.Errorf("got '%s', want '%s'", got, want)
+	}
+}
+
 func TestParsePriceDB(t *testing.T) {
 	t.Run("Parsing empty price DB should succeed and result in no prices", func(t *testing.T) {
 		test := ""

@@ -1,6 +1,7 @@
 package parse
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -10,10 +11,18 @@ type Amount struct {
 	Quantity string
 }
 
+func (a Amount) String() string {
+	return fmt.Sprintf("%s%s", a.Unit, a.Quantity)
+}
+
 type Price struct {
 	Date  time.Time
 	Unit  string
 	Price Amount
+}
+
+func (p Price) String() string {
+	return fmt.Sprintf("P %s \"%s\" %s", p.Date.Format("2006-01-02"), p.Unit, p.Price)
 }
 
 func ParsePriceDB(buffer string) ([]Price, error) {

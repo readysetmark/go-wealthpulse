@@ -23,8 +23,8 @@ func main() {
 	fmt.Printf("Parsed %d prices\n", len(prices))
 
 	fmt.Println("First 5 prices:")
-	for i, v := range prices {
-		fmt.Printf("%v\n", v)
+	for i, price := range prices {
+		fmt.Printf("%s\n", price)
 		if i >= 5 {
 			break
 		}

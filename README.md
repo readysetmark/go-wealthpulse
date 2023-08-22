@@ -4,8 +4,12 @@ WealthPulse rewrite in go... I mean, why not, right?
 
 ... currently working on price parser... execute tests with `go test ./pkg/parse`
 
+- [ ] Price syncing
+    - [x] Update main so it actually parses prices and prints some info for the first few
+    - [ ] price scraping
+    - [ ] sort file by date
+    - [ ] switch output to append-only b
 
-- [x] Update main so it actually parses prices and prints some info for the first few
 - [ ] Parsing/lexing improvements
     - [ ] Add parsers/lexers for full ledger file
     - [ ] An observation about the lexer stateFn return type... it is inconvenient that each lexer needs to know the next state, as it seems to make the individual lexers hard to compose? Maybe I'm just missing something though

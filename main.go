@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
+	"time"
 
 	"github.com/readysetmark/go-wealthpulse/pkg/parse"
 )
@@ -27,22 +29,36 @@ func main() {
 	}
 	fmt.Printf("Parsed %d prices\n", len(prices))
 
-	fmt.Println("First 5 prices:")
-	for i, price := range prices {
-		fmt.Printf("%s\n", price)
-		if i >= 5 {
-			break
-		}
+	sort.Slice(prices, func(i, j int) bool {
+		return prices[i].Unit <= prices[j].Unit && prices[i].Date.Before(prices[j].Date)
+	})
+
+	outputFile, err := os.Create("temp_prices.txt")
+	if err != nil {
+		fmt.Printf("Error creating output file: %v\n", err)
+	}
+	defer outputFile.Close()
+
+	for _, price := range prices {
+		outputFile.Write([]byte(fmt.Sprintf("%s\r\n", price)))
 	}
 
-	fmt.Println("Scraping prices for symbols:")
-	for symbol, code := range fundDataCodeMap {
-		fmt.Printf("symbol: %s, code: %s\n", symbol, code)
-		err = getPricesForSymbol(symbol, code)
-		if err != nil {
-			fmt.Printf("Error getting prices: %v", err)
-		}
-	}
+	// fmt.Println("First 5 prices:")
+	// for i, price := range prices {
+	// 	fmt.Printf("%s\n", price)
+	// 	if i >= 5 {
+	// 		break
+	// 	}
+	// }
+
+	// fmt.Println("Scraping prices for symbols:")
+	// for symbol, code := range fundDataCodeMap {
+	// 	fmt.Printf("symbol: %s, code: %s\n", symbol, code)
+	// 	err = getPricesForSymbol(symbol, code)
+	// 	if err != nil {
+	// 		fmt.Printf("Error getting prices: %v", err)
+	// 	}
+	// }
 }
 
 func getPricesForSymbol(symbol string, code string) error {
@@ -75,7 +91,9 @@ func getPricesForSymbol(symbol string, code string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Data points received: %d\n", len(fundDataResponse.ChartData[0][0].RawData))
+	// fmt.Printf("Data points received: %d\n", len(fundDataResponse.ChartData[0][0].RawData))
+	fmt.Printf("First price received: %s\n", toPrice(symbol, fundDataResponse.ChartData[0][0].RawData[0]))
+	fmt.Printf("Last price received: %s\n", toPrice(symbol, fundDataResponse.ChartData[0][0].RawData[len(fundDataResponse.ChartData[0][0].RawData)-1]))
 
 	return nil
 }
@@ -84,6 +102,22 @@ type FundDataResponse struct {
 	ChartData [][]ChartData `json:"chart_data"`
 }
 
+// expect 2 values in the RawData inner array:
+//  1. unix timestamp in milliseconds (treat as UTC)
+//  2. the price
 type ChartData struct {
 	RawData [][]float64 `json:"raw_data"`
+}
+
+func toPrice(symbol string, rawFundPrice []float64) parse.Price {
+	// TODO: len(rawFundPrice) should be 2 or error
+	return parse.Price{
+		// Date: time.Unix(int64(rawFundPrice[0]), 0),
+		Date: time.UnixMilli(int64(rawFundPrice[0])).UTC(),
+		Unit: symbol,
+		Price: parse.Amount{
+			Unit:     "$",
+			Quantity: fmt.Sprintf("%.2f", rawFundPrice[1]), // TODO: Decimal or format properly!
+		},
+	}
 }

@@ -12,6 +12,7 @@ type Amount struct {
 }
 
 func (a Amount) String() string {
+	// TODO: When quantity becomes a decimal, this will need to be formatted correctly!
 	return fmt.Sprintf("%s%s", a.Unit, a.Quantity)
 }
 

@@ -2,14 +2,24 @@
 
 WealthPulse rewrite in go... I mean, why not, right?
 
-... currently working on price parser... execute tests with `go test ./pkg/parse`
+
+## Developer Commands
+
+Build with: `go build -o bin/wp cmd/wp/main.go`
+Run tests with: `go test ./...`
+
+
+## Progress Tracking
 
 - [ ] Price syncing
     - [x] Update main so it actually parses prices and prints some info for the first few
     - [x] sort prices by symbol and date
     - [x] scrape prices
     - [x] add new prices to pricedb
-    - [ ] write pricedb
+    - [ ] write pricedb (to temp, then replace)
+- [ ] ci build/release
+    - [ ] run tests on all checkins
+    - [ ] build/release on merge to main
 - [ ] Update price syncing
     - [ ] sort file by date
     - [ ] switch output to append-only b

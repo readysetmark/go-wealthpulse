@@ -10,7 +10,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/readysetmark/go-wealthpulse/pkg/parse"
+	"github.com/readysetmark/go-wealthpulse/internal/parse"
 )
 
 var fundDataCodeMap = map[string]string{}

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/readysetmark/go-wealthpulse/pkg/parse"
+	"github.com/readysetmark/go-wealthpulse/internal/parse"
 )
 
 func TestPriceString(t *testing.T) {

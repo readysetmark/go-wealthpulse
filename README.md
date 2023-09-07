@@ -6,7 +6,11 @@ WealthPulse rewrite in go... I mean, why not, right?
 
 - [ ] Price syncing
     - [x] Update main so it actually parses prices and prints some info for the first few
-    - [ ] price scraping
+    - [x] sort prices by symbol and date
+    - [x] scrape prices
+    - [x] add new prices to pricedb
+    - [ ] write pricedb
+- [ ] Update price syncing
     - [ ] sort file by date
     - [ ] switch output to append-only b
 

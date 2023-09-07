@@ -7,23 +7,23 @@ import (
 )
 
 type Amount struct {
-	Unit     string
+	Symbol   string
 	Quantity string
 }
 
 func (a Amount) String() string {
 	// TODO: When quantity becomes a decimal, this will need to be formatted correctly!
-	return fmt.Sprintf("%s%s", a.Unit, a.Quantity)
+	return fmt.Sprintf("%s%s", a.Symbol, a.Quantity)
 }
 
 type Price struct {
-	Date  time.Time
-	Unit  string
-	Price Amount
+	Date   time.Time
+	Symbol string
+	Price  Amount
 }
 
 func (p Price) String() string {
-	return fmt.Sprintf("P %s \"%s\" %s", p.Date.Format("2006-01-02"), p.Unit, p.Price)
+	return fmt.Sprintf("P %s \"%s\" %s", p.Date.Format("2006-01-02"), p.Symbol, p.Price)
 }
 
 func ParsePriceDB(buffer string) ([]Price, error) {
@@ -65,10 +65,10 @@ func parsePrice(lexer *lexer) (Price, error) {
 	amountQuantityItem := lexer.nextItem()
 
 	return Price{
-		Date: time.Date(year, time.Month(month), dayOfMonth, 0, 0, 0, 0, time.UTC),
-		Unit: unitItem.value,
+		Date:   time.Date(year, time.Month(month), dayOfMonth, 0, 0, 0, 0, time.UTC),
+		Symbol: unitItem.value,
 		Price: Amount{
-			Unit:     amountUnitItem.value,
+			Symbol:   amountUnitItem.value,
 			Quantity: amountQuantityItem.value,
 		},
 	}, nil

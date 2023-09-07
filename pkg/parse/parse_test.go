@@ -10,10 +10,10 @@ import (
 
 func TestPriceString(t *testing.T) {
 	test := parse.Price{
-		Date: time.Date(2023, time.August, 9, 0, 0, 0, 0, time.UTC),
-		Unit: "WP",
+		Date:   time.Date(2023, time.August, 9, 0, 0, 0, 0, time.UTC),
+		Symbol: "WP",
 		Price: parse.Amount{
-			Unit:     "$",
+			Symbol:   "$",
 			Quantity: "25.37",
 		},
 	}
@@ -42,18 +42,18 @@ func TestParsePriceDB(t *testing.T) {
 
 		want := []parse.Price{
 			{
-				Date: time.Date(2022, time.February, 20, 0, 0, 0, 0, time.UTC),
-				Unit: "WP",
+				Date:   time.Date(2022, time.February, 20, 0, 0, 0, 0, time.UTC),
+				Symbol: "WP",
 				Price: parse.Amount{
-					Unit:     "$",
+					Symbol:   "$",
 					Quantity: "25.0000",
 				},
 			},
 			{
-				Date: time.Date(2022, time.February, 21, 0, 0, 0, 0, time.UTC),
-				Unit: "WP",
+				Date:   time.Date(2022, time.February, 21, 0, 0, 0, 0, time.UTC),
+				Symbol: "WP",
 				Price: parse.Amount{
-					Unit:     "$",
+					Symbol:   "$",
 					Quantity: "25.4400",
 				},
 			},

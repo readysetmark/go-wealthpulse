@@ -13,7 +13,13 @@ import (
 	"github.com/readysetmark/go-wealthpulse/internal/parse"
 )
 
-var fundDataCodeMap = map[string]string{}
+// TODO: to configuration
+var fundDataCodeMap = map[string]string{
+	"TDB900": "TDB900.TO",
+	"TDB902": "TDB902.TO",
+	"TDB909": "TDB909.TO",
+	"TDB911": "TDB911.TO",
+}
 
 func main() {
 	pricesFilePath := os.Getenv("WEALTH_PULSE_PRICES_FILE")
@@ -30,10 +36,11 @@ func main() {
 	}
 	fmt.Printf("Read %d prices\n", len(prices))
 
-	fmt.Println("Scraping prices for symbols:")
+	// Scrape for new prices
 	// TODO: Ripe for parallelization!
+	foundNew := false
 	for symbol, code := range fundDataCodeMap {
-		fmt.Printf("symbol: %s, code: %s\n", symbol, code)
+		fmt.Printf("Retrieving prices for symbol: %s\n", symbol)
 		retrievedPrices, err := getPricesForSymbol(symbol, code)
 		if err != nil {
 			fmt.Printf("Error getting prices: %v", err)
@@ -47,8 +54,14 @@ func main() {
 			if retrievedPrice.Date.After(latestPrice.Date) {
 				fmt.Printf("Adding price: %s\n", retrievedPrice)
 				prices = append(prices, retrievedPrice)
+				foundNew = true
 			}
 		}
+	}
+
+	if !foundNew {
+		fmt.Println("No new prices found")
+		return
 	}
 
 	// Sort prices (by unit, then date)
@@ -57,17 +70,36 @@ func main() {
 	})
 
 	// Write prices to output file
-	const outputFileName = "temp_prices.txt"
-	outputFile, err := os.Create(outputFileName)
+	// const outputFileName = "temp_prices.txt"
+	writeFilePath := pricesFilePath + "_write"
+	err = writePrices(writeFilePath, prices)
 	if err != nil {
-		fmt.Printf("Error creating output file: %v\n", err)
+		fmt.Printf("error writing prices: %v\n", err)
+		return
+	}
+
+	err = os.Remove(pricesFilePath)
+	if err != nil {
+		fmt.Printf("error deleting price file: %v\n", err)
+	}
+
+	err = os.Rename(writeFilePath, pricesFilePath)
+	if err != nil {
+		fmt.Printf("error renaming price file: %v\n", err)
+	}
+	fmt.Printf("Wrote %d prices to %s\n", len(prices), pricesFilePath)
+}
+
+func writePrices(fileName string, prices []parse.Price) error {
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		return fmt.Errorf("error creating output file: %w", err)
 	}
 	defer outputFile.Close()
-
 	for _, price := range prices {
 		outputFile.Write([]byte(fmt.Sprintf("%s\r\n", price)))
 	}
-	fmt.Printf("Wrote prices to %s\n", outputFileName)
+	return nil
 }
 
 func latestPriceForSymbol(symbol string, prices []parse.Price) parse.Price {
@@ -84,7 +116,7 @@ func latestPriceForSymbol(symbol string, prices []parse.Price) parse.Price {
 
 func getPricesForSymbol(symbol string, code string) ([]parse.Price, error) {
 	// TODO: clean this URL up so it is legible (i.e. break out fields, format and URL encode them)
-	url := "TODO: FUND DATA URL"
+	url := "https://ycharts.com/charts/fund_data.json?securities=id%3AM%3A" + code + "%2Cinclude%3Atrue%2C%2C&calcs=id%3Aprice%2Cinclude%3Atrue%2C%2C&correlations=&format=real&recessions=false&zoom=5&startDate=&endDate=&chartView=&splitType=&scaleType=&note=&title=&source=&units=&quoteLegend=&partner=&quotes=&legendOnChart=&securitylistSecurityId=&clientGroupLogoUrl=&displayTicker=&ychartsLogo=&useEstimates="
 
 	client := http.Client{}
 	request, err := http.NewRequest("GET", url, nil)
